@@ -1,0 +1,6 @@
+
+
+
+aws s3tables delete-table \
+--table-bucket-arn <> \
+--namespace test_namespace --name smple_table3
