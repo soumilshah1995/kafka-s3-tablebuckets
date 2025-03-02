@@ -7,7 +7,7 @@ export JAVA_HOME='/opt/homebrew/opt/openjdk@11'
 ========================================================
 KAFKA CONSUMER
 ========================================================
-spark-submit \
+=spark-submit \
     --master 'local[*]' \
     --executor-memory 1g \
     --name KafkaBatchProcessor \
@@ -15,7 +15,7 @@ spark-submit \
     --conf spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions \
     --conf spark.sql.catalog.ManagedIcebergCatalog=org.apache.iceberg.spark.SparkCatalog \
     --conf spark.sql.catalog.ManagedIcebergCatalog.catalog-impl=software.amazon.s3tables.iceberg.S3TablesCatalog \
-    --conf spark.sql.catalog.ManagedIcebergCatalog.warehouse=<> \
+    --conf spark.sql.catalog.ManagedIcebergCatalog.warehouse=XXXXX \
     --conf spark.sql.catalog.ManagedIcebergCatalog.client.region=us-east-1 \
    /Users/soumilshah/IdeaProjects/emr-labs/kafka-spark/delta-kafka-spark-varient/Consumer/kafka_consumer.py \
     --schema-file /Users/soumilshah/IdeaProjects/emr-labs/kafka-spark/delta-kafka-spark-varient/Consumer/schema.avsc \
