@@ -22,10 +22,13 @@ spark-submit \
     --bootstrap-servers localhost:9092 \
     --topic customers \
     --startingOffsets earliest \
-    --minSyncInterval "5 minute" \
+    --minSyncInterval "1 minute" \
     --maxOffsetsPerTrigger 10000 \
     --checkpoint /Users/soumilshah/IdeaProjects/emr-labs/kafka-spark/delta-kafka-spark-varient/checkpoint/ \
     --mergeQuery /Users/soumilshah/IdeaProjects/emr-labs/kafka-spark/delta-kafka-spark-varient/Consumer/merge.sql \
+    --catalogName  ManagedIcebergCatalog \
+    --dataBaseName default \
+    --tableName employees \
     --consumerGroup spark-consumer
 
 
