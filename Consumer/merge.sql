@@ -1,4 +1,4 @@
-MERGE INTO ManagedIcebergCatalog.default.employees t
+MERGE INTO {catalogName}.{dataBaseName}.{tableName} t
     USING global_temp.source_data s
     ON t.emp_id = s.emp_id
     WHEN MATCHED THEN
