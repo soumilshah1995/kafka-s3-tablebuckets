@@ -13,7 +13,7 @@ from pyspark.sql.types import *
 
 
 class AvroSchema:
-    def __init__(self, path, spark):
+    def __init__(self, path, spark, ):
         self.path = path
         self.spark = spark
         self.spark_schema = self.read_schema()
@@ -78,9 +78,13 @@ class AvroSchema:
 # Merge Query Class
 # ====================================================================
 class MergeQuery:
-    def __init__(self, merge_query_path):
-        self.merge_query_path = merge_query_path
-        self.parsed_url = urlparse(merge_query_path)
+    def __init__(self, args):
+        self.args = args
+        self.merge_query_path = args.mergeQuery
+        self.catalogName = args.catalogName
+        self.dataBaseName = args.dataBaseName
+        self.tableName = args.tableName
+        self.parsed_url = urlparse(self.merge_query_path)
 
     def read_merge_query(self):
         if self.parsed_url.scheme in ['s3', 's3a']:
@@ -99,7 +103,14 @@ class MergeQuery:
             return f.read()
 
     def execute_merge(self, spark, df):
-        merge_query = self.read_merge_query()
+        merge_query = self.read_merge_query().format(
+            catalogName=self.catalogName,
+            dataBaseName=self.dataBaseName,
+            tableName=self.tableName
+        )
+        print("\n")
+        print(merge_query)
+
         df.createOrReplaceGlobalTempView("source_data")
         spark.sql(merge_query).show()
         spark.catalog.dropGlobalTempView("source_data")
@@ -109,7 +120,7 @@ class KafkaStreamProcessor(MergeQuery):
     def __init__(self, args, schema_handler):
         self.args = args
         self.schema_handler = schema_handler
-        MergeQuery.__init__(self, merge_query_path=self.args.mergeQuery)
+        MergeQuery.__init__(self, args=self.args)
         self.spark = SparkSession.builder.appName("KafkaStreamProcessor").getOrCreate()
 
     def create_kafka_read_stream(self):
@@ -160,12 +171,17 @@ def parse_arguments():
     parser.add_argument("--checkpoint", required=True, help="Checkpoint location for Kafka stream")
     parser.add_argument("--consumerGroup", required=True, help="Consumer Group Required")
     parser.add_argument("--mergeQuery", required=True, help="Consumer Group Required")
+
+    parser.add_argument("--catalogName", required=True, help="catalogName  Required")
+    parser.add_argument("--dataBaseName", required=True, help="dataBaseName Group Required")
+    parser.add_argument("--tableName", required=True, help="tableName Group Required")
     return parser.parse_args()
 
 
 def main():
     args = parse_arguments()
     schema_handler = AvroSchema(args.schema_file, SparkSession.builder.getOrCreate())
+
     processor = KafkaStreamProcessor(args, schema_handler)
     processor.start_streaming()
 
